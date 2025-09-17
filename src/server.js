@@ -3,6 +3,7 @@ import pino from "pino-http";
 import cors from "cors";
 import dotenv from "dotenv";
 import { getAllContacts, getContactsById } from "./services/contacts.js";
+import { ContactsCollection } from "./db/models/contacts.js";
 
 import { getEnvVar } from "./utils/getEnvVar.js";
 
@@ -23,7 +24,23 @@ export const setupServer = () => {
       },
     })
   );
+//роут для  создания контакта
+app.post("/contacts", async (req, res, next) => {
+  try {
+    const { name, phoneNumber, email, contactType } = req.body;
 
+    const newContact = await ContactsCollection.create({
+      name,
+      phoneNumber,
+      email,
+      contactType,
+    });
+
+    res.status(201).json({ data: newContact });
+  } catch (err) {
+    next(err);
+  }
+});
   // Роут для получения всех контактов
   app.get("/contacts", async (req, res, next) => {
     try {
@@ -44,7 +61,10 @@ export const setupServer = () => {
         return res.status(404).json({ message: "Contact not found" });
       }
 
-      res.status(200).json({ data: contact });
+      res.status(200).json({
+        status: 200,
+        message: `Successfully found contact with id ${contactId}!`,
+        data: contact });
     } catch (err) {
       next(err);
     }

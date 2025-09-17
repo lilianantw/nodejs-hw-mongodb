@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-import {model, Schema} from mongoose;
+
+const { Schema, model } = mongoose;
 
 const contactsSchema = new Schema(
     {
@@ -31,4 +32,4 @@ contactType : {
     },
 );
 
-export const ContactsCollection = model("contacts", contactsSchema);
+export const ContactsCollection = model("Contacts", contactsSchema);
