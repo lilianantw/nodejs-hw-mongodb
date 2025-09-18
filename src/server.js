@@ -1,11 +1,11 @@
+//src/server.js
+
 import express from "express";
 import pino from "pino-http";
 import cors from "cors";
 import dotenv from "dotenv";
-import { getAllContacts, getContactsById } from "./services/contacts.js";
-import { ContactsCollection } from "./db/models/contacts.js";
 
-import { getEnvVar } from "./utils/getEnvVar.js";
+import contactsRouter from "./routers/contacts.js"; // импортируем роутер
 
 dotenv.config();
 
@@ -24,51 +24,11 @@ export const setupServer = () => {
       },
     })
   );
-//роут для  создания контакта
-app.post("/contacts", async (req, res, next) => {
-  try {
-    const { name, phoneNumber, email, contactType } = req.body;
 
-    const newContact = await ContactsCollection.create({
-      name,
-      phoneNumber,
-      email,
-      contactType,
-    });
 
-    res.status(201).json({ data: newContact });
-  } catch (err) {
-    next(err);
-  }
-});
-  // Роут для получения всех контактов
-  app.get("/contacts", async (req, res, next) => {
-    try {
-      const contacts = await getAllContacts();
-      res.status(200).json({ data: contacts });
-    } catch (err) {
-      next(err);
-    }
-  });
+//подключаем роутер
 
-  // Роут для получения контакта по ID
-  app.get("/contacts/:contactId", async (req, res, next) => {
-    try {
-      const { contactId } = req.params;
-      const contact = await getContactsById(contactId);
-
-      if (!contact) {
-        return res.status(404).json({ message: "Contact not found" });
-      }
-
-      res.status(200).json({
-        status: 200,
-        message: `Successfully found contact with id ${contactId}!`,
-        data: contact });
-    } catch (err) {
-      next(err);
-    }
-  });
+app.use("/contacts", contactsRouter);
 
   // Обработчик 404
   app.use((req, res) => {
