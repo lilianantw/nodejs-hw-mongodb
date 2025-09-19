@@ -15,7 +15,10 @@
 
  export const getContactsController = async (req, res) => {
        const contacts = await getAllContacts();
-       res.status(200).json({ data: contacts });
+       res.status(200).json({
+        status: 200,
+        message:"Successfully found contacts!",
+         data: contacts });
    };
 
 
@@ -50,6 +53,12 @@
  // контроллер обновления (изменения) контакта 
 export const patchContactController = async(req, res) =>{
  const { contactId } = req.params;
+  const cleanId = contactId.trim();
+
+
+  if (!req.body || Object.keys(req.body).length === 0) {
+    throw createError(400, "Request body cannot be empty");
+  }
     const updatedContact = await updateContact(contactId, req.body);
 
          if (!updatedContact) {
@@ -74,6 +83,10 @@ export const deleteContactController = async(req, res) => {
         throw createError(404,  "Contact not found");
       }
 
-    res.status(204).send();
+   res.status(200).json({
+  status: 200,
+  message: "Successfully deleted contact!",
+  data: deletedContact,
+});
 
 };
