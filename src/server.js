@@ -7,6 +7,9 @@ import dotenv from "dotenv";
 
 import contactsRouter from "./routers/contacts.js"; // импортируем роутер
 
+import { errorHandler } from "./middlewares/errorHandler.js";
+import { notFoundHandler } from "./middlewares/notFoundHandler.js";
+
 dotenv.config();
 
 const PORT = Number(process.env.PORT) || 3000;
@@ -28,14 +31,12 @@ export const setupServer = () => {
 
 //подключаем роутер
 
-app.use("/contacts", contactsRouter);
+  app.use("/contacts", contactsRouter);
 
-  // Обработчик 404
-  app.use((req, res) => {
-    res.status(404).json({ message: "Not found" });
-  });
+  app.use(notFoundHandler); 
+  app.use(errorHandler); 
 
-  app.listen(PORT, () => {
+        app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
 };
