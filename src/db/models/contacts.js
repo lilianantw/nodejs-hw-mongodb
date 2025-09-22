@@ -31,6 +31,7 @@ contactType : {
     },
     {
     timestamps: true,
+      versionKey: false, // вимикає __v
     },
 );
 
