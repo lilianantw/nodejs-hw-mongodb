@@ -7,6 +7,9 @@
   updateContact
   } from "../services/contacts.js";
   import { deleteContact } from "../services/contacts.js";
+  import { parsePaginationParams } from "../utils/parsePaginationParams.js";
+  import { parseSortParams } from "../utils/parseSortParams.js";
+  import {parseContactFilterParams} from "../utils/parseFilterParams.js";
 
 
  import createError from "http-errors";
@@ -14,11 +17,23 @@
 // контроллер для получения всех контактов
 
  export const getContactsController = async (req, res) => {
-       const contacts = await getAllContacts();
+       const { page, perPage } = parsePaginationParams(req.query);
+       const {sortBy, sortOrder} = parseSortParams(req.query);
+       const filters = parseContactFilterParams(req.query);
+
+       const contacts = await getAllContacts({
+        page,
+        perPage,
+        sortBy,
+        sortOrder,
+        filters
+       });
+
        res.status(200).json({
-        status: 200,
-        message:"Successfully found contacts!",
-         data: contacts });
+            "status": 200,
+            "message": "Successfully found contacts!",
+            "data": contacts
+           });
    };
 
 
