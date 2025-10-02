@@ -13,6 +13,7 @@
 
 
  import createError from "http-errors";
+import { ContactsCollection } from "../db/models/contacts.js";
 
 // контроллер для получения всех контактов
 
@@ -37,13 +38,12 @@
    };
 
 
-
-
 // контроллер получения контакта по ID
 
    export const getContactsByIdController = async (req, res, next) => {
          const { contactId } = req.params;
-      const contact = await getContactsById(contactId);
+        const contact = await ContactsCollection.findOne({ _id: contactId, userId: req.user._id });
+
 
       if (!contact) {
         throw createError(404,  "Contact not found");
@@ -57,7 +57,7 @@
   };
 // контроллер создания нового контакта 
   export const createContactController = async(req, res) => {
-    const contact = await createContact(req.body);
+    const contact = await ContactsCollection.create({ ...req.body, userId: req.user._id})
 
     res.status(201).json({
     status: 201,
@@ -74,7 +74,11 @@ export const patchContactController = async(req, res) =>{
   if (!req.body || Object.keys(req.body).length === 0) {
     throw createError(400, "Request body cannot be empty");
   }
-    const updatedContact = await updateContact(contactId, req.body);
+    const updatedContact = await ContactsCollection.findOneAndUpdate(
+      { _id: contactId, userId: req.user._id },
+      req.body,
+      { new: true }
+     );
 
          if (!updatedContact) {
         throw createError(404,  "Contact not found");
@@ -92,7 +96,8 @@ export const patchContactController = async(req, res) =>{
 export const deleteContactController = async(req, res) => {
      const { contactId } = req.params;
 
- const deletedContact = await deleteContact(contactId);
+ const deletedContact = await ContactsCollection.findOneAndDelete({ _id: contactId, userId: req.user._id });
+
 
          if (!deletedContact) {
         throw createError(404,  "Contact not found");
