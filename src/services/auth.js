@@ -50,7 +50,7 @@ export const loginUser = async (payload) => {
 
 
 export const logoutUser = async (sessionId) => {
-  await SessionsCollection.deleteOne({ _id: sessionId });
+  await SessionCollection.deleteOne({ _id: sessionId });
 };
 
 const createSession = () => {
@@ -66,7 +66,7 @@ const createSession = () => {
 };
 
 export const refreshUsersSession = async ({ sessionId, refreshToken }) => {
-  const session = await SessionsCollection.findOne({
+  const session = await SessionCollection.findOne({
     _id: sessionId,
     refreshToken,
   });
@@ -84,9 +84,9 @@ export const refreshUsersSession = async ({ sessionId, refreshToken }) => {
   
   const newSession = createSession();
 
-  await SessionsCollection.deleteOne({ _id: sessionId, refreshToken });
+  await SessionCollection.deleteOne({ _id: sessionId, refreshToken });
 
-  return await SessionsCollection.create({
+  return await SessionCollection.create({
     userId: session.userId,
     ...newSession,
   });
