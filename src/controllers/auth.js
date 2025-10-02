@@ -2,7 +2,7 @@
 import { registerUser } from "../services/auth.js";
 
 import { loginUser } from "../services/auth.js";
-import { ONE_DAY } from "../constants.js";
+import { ONE_DAY } from "../constants/index.js";
 import { logoutUser } from "../services/auth.js";
 import { refreshUsersSession } from "../services/auth.js";
 

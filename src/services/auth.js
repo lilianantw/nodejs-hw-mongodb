@@ -3,7 +3,7 @@ import { randomBytes } from 'crypto';
 import bcrypt from 'bcrypt';
 import createHttpError from 'http-errors';
 
-import { FIFTEEN_MINUTES, ONE_DAY } from '../constants.js';
+import { FIFTEEN_MINUTES, ONE_DAY } from "../constants/index.js";
 import { SessionCollection } from '../db/models/session.js';
 
 import { UsersCollection } from "../db/models/user.js";
