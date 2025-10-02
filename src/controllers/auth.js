@@ -1,10 +1,10 @@
 //src/controllers/auth.js
-import { registerUser } from "../services/auth";
+import { registerUser } from "../services/auth.js";
 
-import { loginUser } from "../services/auth";
-import { ONE_DAY } from "../constants";
-import { logoutUser } from "../services/auth";
-import { refreshUsersSession } from "../services/auth";
+import { loginUser } from "../services/auth.js";
+import { ONE_DAY } from "../constants.js";
+import { logoutUser } from "../services/auth.js";
+import { refreshUsersSession } from "../services/auth.js";
 
 export  const registerUserController =  async(req, res) =>{
   const user =  await registerUser(req.body);
