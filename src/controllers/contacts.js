@@ -12,12 +12,15 @@ export const getContactsController = async (req, res) => {
   const { sortBy, sortOrder } = parseSortParams(req.query);
   const filters = parseContactFilterParams(req.query);
 
+  // ✅ добавлен фильтр по пользователю
+  const userFilter = { userId: req.user._id, ...filters };
+
   const contacts = await getAllContacts({
     page,
     perPage,
     sortBy,
     sortOrder,
-    filters
+    filters: userFilter
   });
 
   res.status(200).json({
@@ -26,6 +29,7 @@ export const getContactsController = async (req, res) => {
     data: contacts
   });
 };
+
 
 export const getContactsByIdController = async (req, res, next) => {
   const { contactId } = req.params;

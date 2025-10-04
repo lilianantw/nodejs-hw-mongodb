@@ -1,5 +1,5 @@
 // src/controllers/auth.js
-import { ONE_DAY } from "../constants/index.js";
+import { FIFTEEN_MINUTES, THIRTY_DAYS } from "../constants/index.js";
 import {
   registerUser,
   loginUser,
@@ -7,17 +7,19 @@ import {
   refreshUsersSession,
 } from "../services/auth.js";
 
+// Установка cookie для refreshToken и sessionId
 const setupSession = (res, session) => {
   res.cookie("refreshToken", session.refreshToken, {
     httpOnly: true,
-    expires: new Date(Date.now() + ONE_DAY),
+    expires: new Date(Date.now() + THIRTY_DAYS),
   });
   res.cookie("sessionId", session._id, {
     httpOnly: true,
-    expires: new Date(Date.now() + ONE_DAY),
+    expires: new Date(Date.now() + THIRTY_DAYS),
   });
 };
 
+// Регистрация нового пользователя
 export const registerUserController = async (req, res, next) => {
   try {
     const user = await registerUser(req.body);
@@ -25,31 +27,31 @@ export const registerUserController = async (req, res, next) => {
     res.status(201).json({
       status: 201,
       message: "Successfully registered a user!",
-      data: user,
+      data: user, // без пароля
     });
   } catch (err) {
     next(err);
   }
 };
 
+// Логин пользователя
 export const loginUserController = async (req, res, next) => {
   try {
-    const session = await loginUser(req.body);
+    const session = await loginUser(req.body); // старые сессии удаляются в сервисе
 
     setupSession(res, session);
 
-    res.json({
+    res.status(200).json({
       status: 200,
       message: "Successfully logged in a user!",
-      data: {
-        accessToken: session.accessToken,
-      },
+      data: { accessToken: session.accessToken },
     });
   } catch (err) {
     next(err);
   }
 };
 
+// Logout пользователя
 export const logoutUserController = async (req, res, next) => {
   try {
     const token = req.token; // берем токен из middleware authenticate
@@ -67,6 +69,7 @@ export const logoutUserController = async (req, res, next) => {
   }
 };
 
+// Обновление сессии по refreshToken
 export const refreshUserSessionController = async (req, res, next) => {
   try {
     const session = await refreshUsersSession({
@@ -76,12 +79,10 @@ export const refreshUserSessionController = async (req, res, next) => {
 
     setupSession(res, session);
 
-    res.json({
+    res.status(200).json({
       status: 200,
       message: "Successfully refreshed a session!",
-      data: {
-        accessToken: session.accessToken,
-      },
+      data: { accessToken: session.accessToken },
     });
   } catch (err) {
     next(err);
