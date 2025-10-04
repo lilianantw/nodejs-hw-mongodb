@@ -26,7 +26,8 @@ export const loginUser = async (payload) => {
   const isEqual = await bcrypt.compare(payload.password, user.password);
   if (!isEqual) throw createHttpError(401, 'Unauthorized');
 
-  await SessionCollection.deleteOne({ userId: user._id });
+  // Удаляем старые сессии пользователя
+  await SessionCollection.deleteMany({ userId: user._id });
 
   const accessToken = randomBytes(30).toString("base64");
   const refreshToken = randomBytes(30).toString("base64");
@@ -37,11 +38,16 @@ export const loginUser = async (payload) => {
     refreshToken,
     accessTokenValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
     refreshTokenValidUntil: new Date(Date.now() + ONE_DAY),
+    isValid: true, // ✅ добавлено
   });
 };
 
 export const logoutUser = async (accessToken) => {
-  await SessionCollection.deleteOne({ accessToken });
+  // Инвалидация сессии, чтобы токен больше не был действительным
+  await SessionCollection.findOneAndUpdate(
+    { accessToken },
+    { isValid: false } // ✅ теперь logout реально инвалидирует токен
+  );
 };
 
 const createSession = () => {
@@ -53,6 +59,7 @@ const createSession = () => {
     refreshToken,
     accessTokenValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
     refreshTokenValidUntil: new Date(Date.now() + ONE_DAY),
+    isValid: true, // ✅ добавлено
   };
 };
 
@@ -64,6 +71,8 @@ export const refreshUsersSession = async ({ sessionId, refreshToken }) => {
   if (isSessionTokenExpired) throw createHttpError(401, 'Session token expired');
 
   const newSession = createSession();
+
+  // Удаляем старую сессию
   await SessionCollection.deleteOne({ _id: sessionId, refreshToken });
 
   return await SessionCollection.create({
