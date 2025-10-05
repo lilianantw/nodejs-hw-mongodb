@@ -43,10 +43,9 @@ export const loginUser = async (payload) => {
 };
 
 export const logoutUser = async (accessToken) => {
-  // Инвалидация сессии, чтобы токен больше не был действительным
   await SessionCollection.findOneAndUpdate(
     { accessToken },
-    { isValid: false } // ✅ теперь logout реально инвалидирует токен
+    { isValid: false }
   );
 };
 
