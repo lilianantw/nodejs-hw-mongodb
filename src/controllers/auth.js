@@ -7,6 +7,60 @@ import {
   refreshUsersSession,
 } from "../services/auth.js";
 
+// Регистрация нового пользователя
+export const registerUserController = async (req, res, next) => {
+  try {
+
+    const {name, email, password} = req.body;
+    const user = await registerUser({name, email, password});
+
+    res.status(201).json({
+      status: 201,
+      message: "Successfully registered a user!",
+      data: user, 
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Логин пользователя
+export const loginUserController = async (req, res, next) => {
+  try {
+    const {email, password} = req.body;
+    const session = await loginUser({email, password}); // старые сессии удаляются в сервисе
+
+    res.cookie("refreshToken", session.refreshToken, {
+    httpOnly: true,
+    expires: session.refreshTokenValidUntil,
+    secure: process.env.Node_ENV === "production",
+    sameSize: "strict",
+    });
+
+    res.status(200).json({
+      status: 200,
+      message: "Successfully refreshed a session",
+      data: { accessToken: session.accessToken },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const logoutUserController = async (req, res, next) => {
+  try{
+    const {refreshToken} = req.cookies;
+    await logoutUser(refreshToken);
+    res.clearCookie("refreshToken");
+    res.status(204).send();
+  } catch (error){
+    next(error);
+  }
+};
+
+
+
+
 // Установка cookie для refreshToken и sessionId
 const setupSession = (res, session) => {
   res.cookie("refreshToken", session.refreshToken, {
@@ -19,37 +73,9 @@ const setupSession = (res, session) => {
   });
 };
 
-// Регистрация нового пользователя
-export const registerUserController = async (req, res, next) => {
-  try {
-    const user = await registerUser(req.body);
 
-    res.status(201).json({
-      status: 201,
-      message: "Successfully registered a user!",
-      data: user, // без пароля
-    });
-  } catch (err) {
-    next(err);
-  }
-};
 
-// Логин пользователя
-export const loginUserController = async (req, res, next) => {
-  try {
-    const session = await loginUser(req.body); // старые сессии удаляются в сервисе
 
-    setupSession(res, session);
-
-    res.status(200).json({
-      status: 200,
-      message: "Successfully logged in a user!",
-      data: { accessToken: session.accessToken },
-    });
-  } catch (err) {
-    next(err);
-  }
-};
 
 // Logout пользователя
 export const logoutUserController = async (req, res, next) => {
