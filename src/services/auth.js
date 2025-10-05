@@ -38,15 +38,23 @@ export const loginUser = async (payload) => {
     refreshToken,
     accessTokenValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
     refreshTokenValidUntil: new Date(Date.now() + ONE_DAY),
-    isValid: true, // ✅ добавлено
+    isValid: true, // 
   });
 };
 
-export const logoutUser = async (accessToken) => {
-  await SessionCollection.findOneAndUpdate(
-    { accessToken },
-    { isValid: false }
-  );
+
+export const logoutUser = async (refreshToken) => {
+  if (!refreshToken) {
+    throw createHttpError(401, 'Unauthorized');
+  }
+
+  const session = await SessionCollection.findOne({ refreshToken });
+
+  if (!session) {
+    throw createHttpError(401, 'Unauthorized');
+  }
+
+  await SessionCollection.deleteOne({ _id: session._id });
 };
 
 const createSession = () => {
