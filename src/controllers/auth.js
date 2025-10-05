@@ -68,21 +68,15 @@ const setupSession = (res, session) => {
 
 
 // Logout пользователя
-export const logoutUserController = async (req, res, next) => {
-  try {
-    const token = req.token; // берем токен из middleware authenticate
-
-    if (token) {
-      await logoutUser(token); // удаляем сессию по accessToken
-    }
-
-    res.clearCookie("sessionId");
-    res.clearCookie("refreshToken");
-
-    res.status(204).send();
-  } catch (err) {
-    next(err);
+export const logoutUserController = async (req, res) => {
+  if (req.cookies.sessionId) {
+    await logoutUser(req.cookies.sessionId);
   }
+
+  res.clearCookie('sessionId');
+  res.clearCookie('refreshToken');
+
+  res.status(204).send();
 };
 
 
