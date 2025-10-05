@@ -47,17 +47,6 @@ export const loginUserController = async (req, res, next) => {
   }
 };
 
-export const logoutUserController = async (req, res, next) => {
-  try{
-    const {refreshToken} = req.cookies;
-    await logoutUser(refreshToken);
-    res.clearCookie("refreshToken");
-    res.status(204).send();
-  } catch (error){
-    next(error);
-  }
-};
-
 
 
 
@@ -94,6 +83,7 @@ export const logoutUserController = async (req, res, next) => {
     next(err);
   }
 };
+
 
 // Обновление сессии по refreshToken
 export const refreshUserSessionController = async (req, res, next) => {
