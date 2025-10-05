@@ -1,5 +1,6 @@
 // src/controllers/auth.js
-import { FIFTEEN_MINUTES, THIRTY_DAYS } from "../constants/index.js";
+import { THIRTY_DAYS } from "../constants/index.js";
+// import { FIFTEEN_MINUTES, THIRTY_DAYS } from "../constants/index.js";
 import {
   registerUser,
   loginUser,
