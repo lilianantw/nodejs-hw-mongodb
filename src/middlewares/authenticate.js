@@ -38,6 +38,8 @@ try{
     email: user.email,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
+    sessionId: session._id,     
+    accessToken: session.accessToken 
     };
  
   next();

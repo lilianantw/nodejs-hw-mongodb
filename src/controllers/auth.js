@@ -1,5 +1,4 @@
 // src/controllers/auth.js
-
 import {
   registerUser,
   loginUser,
@@ -10,9 +9,8 @@ import {
 // Регистрация нового пользователя
 export const registerUserController = async (req, res, next) => {
   try {
-
-    const {name, email, password} = req.body;
-    const user = await registerUser({name, email, password});
+    const { name, email, password } = req.body;
+    const user = await registerUser({ name, email, password });
 
     res.status(201).json({
       status: 201,
@@ -27,11 +25,8 @@ export const registerUserController = async (req, res, next) => {
 // Логин пользователя
 export const loginUserController = async (req, res, next) => {
   try {
-    const {email, password} = req.body;
-    const session = await loginUser({email, password}); // старые сессии удаляются в сервисе
-
-     // 🔥 Додай цей рядок:
-    console.log('session._id:', session._id);
+    const { email, password } = req.body;
+    const session = await loginUser({ email, password });
 
     res.cookie("refreshToken", session.refreshToken, {
       httpOnly: true,
@@ -46,9 +41,10 @@ export const loginUserController = async (req, res, next) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
     });
+
     res.status(200).json({
       status: 200,
-      message: "Successfully refreshed a session",
+      message: "Successfully logged in",
       data: { accessToken: session.accessToken },
     });
   } catch (err) {
@@ -57,36 +53,45 @@ export const loginUserController = async (req, res, next) => {
 };
 
 // Обновление сессии по refreshToken
-export const refreshUserSessionController = async(req, res, next) =>{
-   try{
-     const { sessionId, refreshToken } = req.cookies;
-   const session = await refreshUsersSession({ sessionId, refreshToken });
+export const refreshUserSessionController = async (req, res, next) => {
+  try {
+    const { sessionId, refreshToken } = req.cookies;
+    const session = await refreshUsersSession({ sessionId, refreshToken });
+
     res.cookie("refreshToken", session.refreshToken, {
       httpOnly: true,
-      expiries: session.refreshTokenValidUntil,
+      expires: session.refreshTokenValidUntil,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
     });
+
+    res.cookie('sessionId', session._id.toString(), {
+      httpOnly: true,
+      expires: session.refreshTokenValidUntil,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
  
     res.status(200).json({
-        status: 200,
-        message: 'Succesfully refreshed a session',
-        data: {
-          accessToken: session.accessToken,
-        },
+      status: 200,
+      message: 'Successfully refreshed a session',
+      data: {
+        accessToken: session.accessToken,
+      },
     });
-      } catch (err) {
+  } catch (err) {
     next(err);
   }
 };
 
-// Logout пользователя
+
 export const logoutUserController = async (req, res, next) => {
   try {
-    const { sessionId } = req.cookies;
-    if (sessionId) {
-      await logoutUser(sessionId); // ← передаём _id
-    }
+  
+    const { sessionId } = req.user;
+    
+    await logoutUser(sessionId);
+
     res.clearCookie('sessionId');
     res.clearCookie('refreshToken');
     res.status(204).send();
@@ -94,5 +99,3 @@ export const logoutUserController = async (req, res, next) => {
     next(error);
   }
 };
-
-
