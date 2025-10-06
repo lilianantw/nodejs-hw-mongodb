@@ -1,6 +1,5 @@
 // src/controllers/auth.js
-import { THIRTY_DAYS } from "../constants/index.js";
-// import { FIFTEEN_MINUTES, THIRTY_DAYS } from "../constants/index.js";
+
 import {
   registerUser,
   loginUser,
@@ -31,13 +30,22 @@ export const loginUserController = async (req, res, next) => {
     const {email, password} = req.body;
     const session = await loginUser({email, password}); // старые сессии удаляются в сервисе
 
+     // 🔥 Додай цей рядок:
+    console.log('session._id:', session._id);
+
     res.cookie("refreshToken", session.refreshToken, {
-    httpOnly: true,
-    expires: session.refreshTokenValidUntil,
-    secure: process.env.Node_ENV === "production",
-    sameSize: "strict",
+      httpOnly: true,
+      expires: session.refreshTokenValidUntil,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
     });
 
+    res.cookie('sessionId', session._id.toString(), {
+      httpOnly: true,
+      expires: session.refreshTokenValidUntil,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
     res.status(200).json({
       status: 200,
       message: "Successfully refreshed a session",
@@ -48,54 +56,43 @@ export const loginUserController = async (req, res, next) => {
   }
 };
 
-
-
-
-// Установка cookie для refreshToken и sessionId
-const setupSession = (res, session) => {
-  res.cookie("refreshToken", session.refreshToken, {
-    httpOnly: true,
-    expires: new Date(Date.now() + THIRTY_DAYS),
-  });
-  res.cookie("sessionId", session._id, {
-    httpOnly: true,
-    expires: new Date(Date.now() + THIRTY_DAYS),
-  });
-};
-
-
-
-
-
-// Logout пользователя
-export const logoutUserController = async (req, res) => {
-  if (req.cookies.sessionId) {
-    await logoutUser(req.cookies.sessionId);
-  }
-
-  res.clearCookie('sessionId');
-  res.clearCookie('refreshToken');
-
-  res.status(204).send();
-};
-
-
 // Обновление сессии по refreshToken
-export const refreshUserSessionController = async (req, res, next) => {
-  try {
-    const session = await refreshUsersSession({
-      sessionId: req.cookies.sessionId,
-      refreshToken: req.cookies.refreshToken,
+export const refreshUserSessionController = async(req, res, next) =>{
+   try{
+     const { sessionId, refreshToken } = req.cookies;
+   const session = await refreshUsersSession({ sessionId, refreshToken });
+    res.cookie("refreshToken", session.refreshToken, {
+      httpOnly: true,
+      expiries: session.refreshTokenValidUntil,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
     });
-
-    setupSession(res, session);
-
+ 
     res.status(200).json({
-      status: 200,
-      message: "Successfully refreshed a session!",
-      data: { accessToken: session.accessToken },
+        status: 200,
+        message: 'Succesfully refreshed a session',
+        data: {
+          accessToken: session.accessToken,
+        },
     });
-  } catch (err) {
+      } catch (err) {
     next(err);
   }
 };
+
+// Logout пользователя
+export const logoutUserController = async (req, res, next) => {
+  try {
+    const { sessionId } = req.cookies;
+    if (sessionId) {
+      await logoutUser(sessionId); // ← передаём _id
+    }
+    res.clearCookie('sessionId');
+    res.clearCookie('refreshToken');
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};
+
+
