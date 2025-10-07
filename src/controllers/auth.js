@@ -87,13 +87,12 @@ export const refreshUserSessionController = async (req, res, next) => {
 
 export const logoutUserController = async (req, res, next) => {
   try {
-  
-    const { sessionId } = req.user;
-    
-    await logoutUser(sessionId);
+    const { refreshToken } = req.cookies;
 
-    res.clearCookie('sessionId');
+    await logoutUser(refreshToken);
+
     res.clearCookie('refreshToken');
+
     res.status(204).send();
   } catch (error) {
     next(error);
