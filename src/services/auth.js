@@ -42,13 +42,12 @@ export const loginUser = async (payload) => {
   });
 };
 
-
-export const logoutUser = async (sessionId) => {
-  if (!sessionId) {
+export const logoutUser = async (refreshToken) => {
+  if (!refreshToken) {
     throw createHttpError(401, 'Unauthorized');
   }
 
-  const session = await SessionCollection.findOne({ _id: sessionId });
+  const session = await SessionCollection.findOne({refreshToken});
 
   if (!session) {
     throw createHttpError(401, 'Unauthorized');

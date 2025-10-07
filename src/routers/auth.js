@@ -21,6 +21,6 @@ router.post("/register",
             ctrlWrapper(loginUserController),
          );
 
-         router.post('/logout', authenticate,  ctrlWrapper(logoutUserController));
-         router.post('/refresh', ctrlWrapper(refreshUserSessionController));
+         router.post('/logout', logoutUserController);
+         router.post('/refresh', refreshUserSessionController);
 export default router;
