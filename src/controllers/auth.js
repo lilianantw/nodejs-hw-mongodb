@@ -5,6 +5,7 @@ import {
   logoutUser,
   refreshUsersSession,
 } from "../services/auth.js";
+import {   requestResetToken , resetPassword } from "../services/auth.js";
 
 // Регистрация нового пользователя
 export const registerUserController = async (req, res, next) => {
@@ -97,4 +98,39 @@ export const logoutUserController = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+// export async function requestPasswordResetController(req, res) {
+//   await requestPasswordReset(req.body.email);
+//   res.json({status: 200});
+//   }
+
+
+// контролер, який буде обробляти запит на зміну пароля
+export const requestResetEmailController = async (req, res) =>
+{
+await requestResetToken(req.body.email);
+res.json({
+message: "Reset password email was successfully sent",
+status: 200,
+data: {},
+});
+};
+//конспект
+// export const resetPasswordController = async (req, res) => {
+//   await resetPassword(req.body);
+//   res.json({
+//     message: "Password was successfully reset!",
+//     status: 200,
+//     data: {},
+//   });
+// };
+
+//лекция
+export async function  resetPasswordController (req, res) {
+  await resetPassword(req.body.token, req.body.password);
+  res.json({
+       status: 200,
+       message: "Password has been successfully reset.",
+       data: {}});
 };

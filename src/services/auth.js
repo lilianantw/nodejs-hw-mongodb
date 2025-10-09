@@ -2,10 +2,15 @@
 import { randomBytes } from 'crypto';
 import bcrypt from 'bcrypt';
 import createHttpError from 'http-errors';
+import jwt from 'jsonwebtoken';
+import {SMTP} from "../constants/index.js";
+import { getEnvVar } from "../utils/getEnvVar.js";
+import { sendEmail } from '../utils/sendMail.js';
 
 import { FIFTEEN_MINUTES, THIRTY_DAYS } from "../constants/index.js";  
 import { SessionCollection } from '../db/models/session.js';
 import { UsersCollection } from "../db/models/user.js";
+
 
 export const registerUser = async (payload) => {
   const user = await UsersCollection.findOne({ email: payload.email });
@@ -85,4 +90,54 @@ export const refreshUsersSession = async ({ sessionId, refreshToken }) => {
     userId: session.userId,
     ...newSession,
   });
+};
+
+
+export const requestResetToken = async(email) => {
+const user = await UsersCollection.findOne({email});
+
+if(!user){
+  throw createHttpError(404, 'User not found!');
+}
+
+const resetToken =jwt.sign(
+  {sub: user._id, email},
+  getEnvVar("JWT_SECRET"),
+  {expiresIn: "5m"},
+);
+
+try{
+await sendEmail({
+  from: getEnvVar(SMTP.SMTP_FROM),
+  to: email,
+  subject: "Reset your password",
+  html: `${getEnvVar('APP_DOMAIN')}/reset-password?token=${resetToken}`,
+});
+}catch {
+  throw createHttpError(500, 'Failed to send the email, please try again later.');
+}
+};
+
+export async function resetPassword(token, password) {
+  try{
+ const decoded = jwt.verify(token, getEnvVar('JWT_SECRET'));
+
+const hashedPassword =  await bcrypt.hash(password, 10);
+await UsersCollection.updateOne(
+  {_id: decoded.sub}, 
+  {password: hashedPassword}
+);
+    // Удаляем все сессии пользователя после смены пароля
+    await SessionCollection.deleteMany({ userId: decoded.sub });
+
+  }catch(error){
+    if(error.name === "TokenExpiredError"){
+        throw createHttpError.Unauthorized(401, "User not found!"  )
+    }  
+  
+
+  if(error.name === "JsonWebTokenError"){
+      throw createHttpError.Unauthorized(401, "Token is expired or invalid."  )
+  }
+}
 };
