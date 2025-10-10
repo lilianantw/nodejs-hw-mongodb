@@ -5,9 +5,11 @@ import pino from "pino-http";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from 'cookie-parser';
+import { UPLOAD_DIR } from './constants/index.js';
 
 import authRouter from "./routers/auth.js";
 import router from "./routers/index.js"; // импортируем роутер
+import contactsRouter from "./routers/contacts.js";
 
 import { errorHandler } from "./middlewares/errorHandler.js";
 import { notFoundHandler } from "./middlewares/notFoundHandler.js";
@@ -35,8 +37,9 @@ export const setupServer = () => {
 
 
   app.use("/auth", authRouter);
+   app.use("/contacts", contactsRouter);
   app.use(router);
-
+  app.use('/uploads', express.static(UPLOAD_DIR));
   app.use(notFoundHandler); 
   app.use(errorHandler); 
 
@@ -44,3 +47,4 @@ export const setupServer = () => {
     console.log(`Server is running on port ${PORT}`);
   });
 };
+
