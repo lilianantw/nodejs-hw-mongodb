@@ -10,21 +10,29 @@ const contactsSchema = new Schema(
       type: String,
       required: true,
     },
+
     userId: { 
       type: Schema.Types.ObjectId,
      required: true },
+
    phoneNumber: {
       type: String,
       required: true,
     },
-
+   
    email: {
       type: String
          },
+
    isFavourite : {
       type: Boolean,
       default: false,
     },
+    
+     photo: {
+       type: String,
+        },
+
 contactType : {
       type: String,
       enum: ["work", "home", "personal"],

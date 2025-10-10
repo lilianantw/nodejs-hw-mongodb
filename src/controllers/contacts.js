@@ -3,9 +3,12 @@
 import { getAllContacts } from "../services/contacts.js";
 import { parsePaginationParams } from "../utils/parsePaginationParams.js";
 import { parseSortParams } from "../utils/parseSortParams.js";
-// import { parseContactFilterParams } from "../utils/parseFilterParams.js";
 import createError from "http-errors";
 import { ContactsCollection } from "../db/models/contacts.js";
+import { saveFileToUploadDir } from '../utils/saveFileToUploadDir.js';
+import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
+import { getEnvVar } from '../utils/getEnvVar.js';
+
 
 
 export const getContactsController = async (req, res) => {
@@ -48,39 +51,75 @@ export const getContactsByIdController = async (req, res, next) => {
   });
 };
 
-export const createContactController = async (req, res) => {
-  const contact = await ContactsCollection.create({ ...req.body, userId: req.user._id });
+export const createContactController = async (req, res, next) => {
+  const photo = req.file;
+  let photoUrl;
+
+  if (photo) {
+    if (getEnvVar('ENABLE_CLOUDINARY') === 'true') {
+      photoUrl = await saveFileToCloudinary(photo);
+    } else {
+      photoUrl = await saveFileToUploadDir(photo);
+    }
+  }
+
+  const newContactData = {
+    ...req.body,
+    userId: req.user._id,
+  };
+
+  if (photoUrl) {
+    newContactData.photo = photoUrl;
+  }
+
+  const contact = await ContactsCollection.create(newContactData);
 
   res.status(201).json({
     status: 201,
     message: "Successfully created a contact!",
-    data: contact
+    data: contact,
   });
 };
 
-export const patchContactController = async (req, res) => {
+//********************
+  export const patchContactController = async (req, res, next) => {
   const { contactId } = req.params;
+  const photo = req.file;
 
   if (!req.body || Object.keys(req.body).length === 0) {
-    throw createError(400, "Request body cannot be empty");
+    return next(createError(400, "Request body cannot be empty"));
   }
 
-  const updatedContact = await ContactsCollection.findOneAndUpdate(
+  let photoUrl;
+  if (photo) {
+    if (getEnvVar('ENABLE_CLOUDINARY') === 'true') {
+      photoUrl = await saveFileToCloudinary(photo);
+    } else {
+      photoUrl = await saveFileToUploadDir(photo);
+    }
+  }
+
+  const updatedData = { ...req.body };
+  if (photoUrl) updatedData.photo = photoUrl;
+
+  const result = await ContactsCollection.findOneAndUpdate(
     { _id: contactId, userId: req.user._id },
-    req.body,
+    updatedData,
     { new: true }
   );
 
-  if (!updatedContact) {
-    throw createError(404, "Contact not found");
+  if (!result) {
+    return next(createError(404, "Contact not found"));
   }
 
-  res.status(200).json({
+  res.json({
     status: 200,
     message: "Successfully patched a contact!",
-    data: updatedContact
+    data: result,
   });
 };
+
+//****************** 
 
 export const deleteContactController = async (req, res) => {
   const { contactId } = req.params;
@@ -97,3 +136,5 @@ export const deleteContactController = async (req, res) => {
     data: deletedContact
   });
 };
+
+
