@@ -1,0 +1,27 @@
+# swagger/paths/contacts/{id}/delete.yaml
+
+tags:
+  - Contacts
+summary: Видалити контакт за ID
+operationId: deleteContact
+description: 'Видаляє контакт користувача за його унікальним ID'
+security:
+  - bearerAuth: []
+parameters:
+  - name: contactId
+    in: path
+    required: true
+    schema:
+      type: string
+responses:
+  '200':
+    description: Контакт успішно видалено
+    content:
+      application/json:
+        schema:
+          $ref: ../../../components/schemas/contact.yaml
+  '401':
+    $ref: ../../../components/responses/401.yaml
+  '404':
+    $ref: ../../../components/responses/404.yaml
+

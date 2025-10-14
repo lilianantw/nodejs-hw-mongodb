@@ -6,6 +6,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from 'cookie-parser';
 import { UPLOAD_DIR } from './constants/index.js';
+import { swaggerDocs } from './middlewares/swaggerDocs.js';
 
 import authRouter from "./routers/auth.js";
 import router from "./routers/index.js"; // импортируем роутер
@@ -33,13 +34,19 @@ export const setupServer = () => {
   );
 
 
-//подключаем роутер
-
+//подключаем роуты
 
   app.use("/auth", authRouter);
    app.use("/contacts", contactsRouter);
   app.use(router);
+
+// Swagger UI
+      app.use('/api-docs', swaggerDocs());
+
+// Папка для статических файлов
   app.use('/uploads', express.static(UPLOAD_DIR));
+
+  // Обработчики ошибок
   app.use(notFoundHandler); 
   app.use(errorHandler); 
 
