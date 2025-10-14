@@ -1,0 +1,62 @@
+# swagger/paths/contacts/post.yaml
+# опис ендпоінта POST /contacts
+
+tags:
+  - Contacts
+summary: Створити новий контакт
+operationId: createContact
+description: 'Створює новий контакт користувача'
+security:
+  - bearerAuth: []
+requestBody:
+  required: true
+  content:
+    multipart/form-data:
+      schema:
+        type: object
+        properties:
+          name:
+            type: string
+          email:
+            type: string
+          phone:
+            type: string
+          photo:
+            type: string
+            format: binary
+responses:
+  '201':
+    description: Контакт створено
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - status
+            - message
+            - data
+          properties:
+            status:
+              type: integer
+              example: 201
+            message:
+              type: string
+              example: Contact created successfully!
+            data:
+              $ref: ../../components/schemas/contact.yaml
+  '400':
+    description: Некоректні дані запиту
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            status:
+              type: integer
+              example: 400
+            message:
+              type: string
+              example: Invalid request data
+  '401':
+    $ref: ../../components/responses/401.yaml
+
