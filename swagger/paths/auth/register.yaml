@@ -1,0 +1,31 @@
+# swagger/paths/auth/register.yaml
+post:
+  tags:
+    - Auth
+  summary: Реєстрація нового користувача
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schemas/userAuth.yaml#/UserRegister'
+  responses:
+    '201':
+      description: Користувач успішно створений
+      content:
+        application/json:
+          schema:
+            $ref: '../../components/schemas/userAuth.yaml#/UserRegisterResponse'
+    '409':
+      description: Email вже використовується
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                example: 409
+              message:
+                type: string
+                example: "Email in use"

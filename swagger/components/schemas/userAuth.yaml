@@ -1,0 +1,73 @@
+# swagger/components/schemas/userAuth.yaml
+# Схеми для реєстрації та логіну користувача
+
+
+UserRegister:
+  type: object
+  required:
+    - name
+    - email
+    - password
+  properties:
+    name:
+      type: string
+      example: "John Doe"
+    email:
+      type: string
+      example: "john@example.com"
+    password:
+      type: string
+      example: "password123"
+
+UserRegisterResponse:
+  type: object
+  required:
+    - status
+    - message
+    - data
+  properties:
+    status:
+      type: integer
+      example: 201
+    message:
+      type: string
+      example: "User created successfully"
+    data:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+
+UserLogin:
+  type: object
+  required:
+    - email
+    - password
+  properties:
+    email:
+      type: string
+      example: "john@example.com"
+    password:
+      type: string
+      example: "password123"
+
+UserLoginResponseData:
+  type: object
+  required:
+    - token
+    - user
+  properties:
+    token:
+      type: string
+      example: "jwt.token.here"
+    user:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          example: "john@example.com"

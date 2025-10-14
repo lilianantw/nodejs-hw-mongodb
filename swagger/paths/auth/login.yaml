@@ -1,0 +1,32 @@
+# swagger/paths/auth/login.yaml
+
+post:
+  tags:
+    - Auth
+  summary: Логін користувача
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schemas/userAuth.yaml#/UserLogin'
+  responses:
+    '200':
+      description: Успішний логін
+      content:
+        application/json:
+          schema:
+            $ref: '../../components/schemas/userAuth.yaml#/UserLoginResponseData'
+    '401':
+      description: Невірний email або пароль
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                example: 401
+              message:
+                type: string
+                example: "Unauthorized"

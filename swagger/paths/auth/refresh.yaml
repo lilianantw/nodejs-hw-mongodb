@@ -1,0 +1,39 @@
+# swagger/paths/auth/refresh.yaml
+
+post:
+  tags:
+    - Auth
+  summary: Оновлення сесії (refresh)
+  responses:
+    '200':
+      description: Сесія успішно оновлена
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                example: 200
+              message:
+                type: string
+                example: "Successfully refreshed a session"
+              data:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    example: "new.jwt.token.here"
+    '401':
+      description: Неавторизований
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                example: 401
+              message:
+                type: string
+                example: "Session token expired"
