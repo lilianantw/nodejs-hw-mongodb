@@ -24,17 +24,195 @@ security:
 paths:
   /contacts:
     get:
-      $ref: ../swagger/paths/contacts/get.yaml
+      tags:
+        - Contacts
+      summary: Отримати список контактів
+      operationId: getContacts
+      description: Повертає список контактів користувача з пагінацією та сортуванням
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Номер сторінки
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: perPage
+          in: query
+          description: Кількість контактів на сторінку
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: sortBy
+          in: query
+          description: Поле для сортування
+          required: false
+          schema:
+            type: string
+            enum: [name, email, phoneNumber]
+        - name: sortOrder
+          in: query
+          description: Порядок сортування
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+      responses:
+        '200':
+          description: Успішне отримання контактів
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: Successfully found contacts!
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Contact'
+        '401':
+          $ref: '#/components/responses/401'
+
     post:
-      $ref: ../swagger/paths/contacts/post.yaml
+      tags:
+        - Contacts
+      summary: Створити новий контакт
+      operationId: createContact
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+                - phoneNumber
+              properties:
+                name:
+                  type: string
+                  example: John Doe
+                email:
+                  type: string
+                  example: john@example.com
+                phoneNumber:
+                  type: string
+                  example: "+380991234567"
+                photo:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Контакт створено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
 
   /contacts/{contactId}:
     get:
-      $ref: ../swagger/paths/contacts/{id}/get.yaml
+      tags:
+        - Contacts
+      summary: Отримати контакт за ID
+      operationId: getContactById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: string
+            example: 65ca67e7ae7f10c88b598384
+      responses:
+        '200':
+          description: Успішне отримання контакту
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactResponse'
+        '404':
+          $ref: '#/components/responses/404'
+
     patch:
-      $ref: ../swagger/paths/contacts/{id}/patch.yaml
+      tags:
+        - Contacts
+      summary: Оновити контакт
+      operationId: updateContact
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Jane Doe
+                email:
+                  type: string
+                  example: jane@example.com
+                phoneNumber:
+                  type: string
+                  example: "+380671112233"
+                photo:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Контакт оновлено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '404':
+          $ref: '#/components/responses/404'
+
     delete:
-      $ref: ../swagger/paths/contacts/{id}/delete.yaml
+      tags:
+        - Contacts
+      summary: Видалити контакт
+      operationId: deleteContact
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Контакт видалено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactResponse'
+        '404':
+          $ref: '#/components/responses/404'
 
   /auth/signup:
     post:
@@ -51,7 +229,7 @@ paths:
               $ref: '#/components/schemas/userSignup'
       responses:
         '201':
-          description: Користувач успішно створений
+          description: Користувач створений
           content:
             application/json:
               schema:
@@ -74,7 +252,7 @@ paths:
               $ref: '#/components/schemas/userLogin'
       responses:
         '200':
-          description: Користувач успішно залогінений
+          description: Успішний логін
           content:
             application/json:
               schema:
@@ -86,7 +264,7 @@ paths:
     post:
       tags:
         - Auth
-      summary: Вихід користувача (logout)
+      summary: Вихід користувача
       operationId: logoutUser
       security: []
       responses:
@@ -99,64 +277,16 @@ paths:
     post:
       tags:
         - Auth
-      summary: Оновлення сесії користувача (refresh)
+      summary: Оновлення токена
       operationId: refreshUserSession
       security: []
       responses:
         '200':
-          description: Сесія успішно оновлена
+          description: Токен оновлено
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/authResponse'
-        '401':
-          $ref: '#/components/responses/401'
-
-  /auth/send-reset-email:
-    post:
-      tags:
-        - Auth
-      summary: Надіслати емейл для скидання пароля
-      operationId: sendResetEmail
-      security: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/requestResetEmail'
-      responses:
-        '200':
-          description: Емейл успішно надіслано
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/resetEmailResponse'
-        '404':
-          $ref: '#/components/responses/404'
-        '500':
-          $ref: '#/components/responses/500'
-
-  /auth/reset-pwd:
-    post:
-      tags:
-        - Auth
-      summary: Скидання пароля
-      operationId: resetPassword
-      security: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/resetPassword'
-      responses:
-        '200':
-          description: Пароль успішно змінено
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/resetPasswordResponse'
         '401':
           $ref: '#/components/responses/401'
 
@@ -167,6 +297,44 @@ components:
       scheme: bearer
 
   schemas:
+    Contact:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 65ca67e7ae7f10c88b598384
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          example: john@example.com
+        phoneNumber:
+          type: string
+          example: "+380991234567"
+        photo:
+          type: string
+          example: "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+        userId:
+          type: string
+          example: 65ca67e7ae7f10c88b598300
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ContactResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Contact'
+
     userSignup:
       type: object
       required:
@@ -205,7 +373,7 @@ components:
           example: 201
         message:
           type: string
-          example: "User created successfully!"
+          example: User created successfully!
         data:
           type: object
           properties:
@@ -218,12 +386,6 @@ components:
             email:
               type: string
               example: john@example.com
-            createdAt:
-              type: string
-              format: date-time
-            updatedAt:
-              type: string
-              format: date-time
 
     authResponse:
       type: object
@@ -233,58 +395,10 @@ components:
           example: 200
         message:
           type: string
-          example: "Login successful"
+          example: Login successful
         token:
           type: string
-          example: "jwt.token.here"
-
-    requestResetEmail:
-      type: object
-      required:
-        - email
-      properties:
-        email:
-          type: string
-          example: john@example.com
-
-    resetEmailResponse:
-      type: object
-      properties:
-        status:
-          type: integer
-          example: 200
-        message:
-          type: string
-          example: "Reset password email was successfully sent"
-        data:
-          type: object
-          example: {}
-
-    resetPassword:
-      type: object
-      required:
-        - token
-        - password
-      properties:
-        token:
-          type: string
-          example: "jwt.reset.token.here"
-        password:
-          type: string
-          example: "newStrongPassword123"
-
-    resetPasswordResponse:
-      type: object
-      properties:
-        status:
-          type: integer
-          example: 200
-        message:
-          type: string
-          example: "Password has been successfully reset"
-        data:
-          type: object
-          example: {}
+          example: jwt.token.here
 
   responses:
     400:
@@ -299,8 +413,7 @@ components:
                 example: 400
               message:
                 type: string
-                example: "Invalid request data"
-
+                example: Invalid request data
     401:
       description: Unauthorized
       content:
@@ -313,10 +426,9 @@ components:
                 example: 401
               message:
                 type: string
-                example: "Unauthorized"
-
+                example: Unauthorized
     404:
-      description: Resource not found
+      description: Not Found
       content:
         application/json:
           schema:
@@ -327,18 +439,5 @@ components:
                 example: 404
               message:
                 type: string
-                example: "Resource not found"
+                example: Resource not found
 
-    500:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              status:
-                type: integer
-                example: 500
-              message:
-                type: string
-                example: "Internal server error"
