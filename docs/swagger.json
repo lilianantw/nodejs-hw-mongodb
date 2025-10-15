@@ -11,12 +11,12 @@
   },
   "servers": [
     {
-      "url": "https://nodejs-hw-mongodb-7-1it5.onrender.com",
-      "description": "Render deployment"
-    },
-    {
       "url": "http://localhost:3000",
       "description": "Local development server"
+    },
+    {
+      "url": "https://nodejs-hw-mongodb-7-1it5.onrender.com",
+      "description": "Render deployment"
     }
   ],
   "security": [
@@ -40,7 +40,6 @@
         ],
         "summary": "Отримати список контактів",
         "operationId": "getContacts",
-        "description": "Повертає список контактів користувача з пагінацією та сортуванням",
         "security": [
           {
             "bearerAuth": []
@@ -50,8 +49,6 @@
           {
             "name": "page",
             "in": "query",
-            "description": "Номер сторінки",
-            "required": false,
             "schema": {
               "type": "integer",
               "default": 1
@@ -60,8 +57,6 @@
           {
             "name": "perPage",
             "in": "query",
-            "description": "Кількість контактів на сторінку",
-            "required": false,
             "schema": {
               "type": "integer",
               "default": 10
@@ -70,8 +65,6 @@
           {
             "name": "sortBy",
             "in": "query",
-            "description": "Поле для сортування",
-            "required": false,
             "schema": {
               "type": "string",
               "enum": [
@@ -84,8 +77,6 @@
           {
             "name": "sortOrder",
             "in": "query",
-            "description": "Порядок сортування",
-            "required": false,
             "schema": {
               "type": "string",
               "enum": [
@@ -101,23 +92,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "integer",
-                      "example": 200
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Successfully found contacts!"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/Contact"
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/ContactResponse200"
                 }
               }
             }
@@ -176,7 +151,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ContactResponse"
+                  "$ref": "#/components/schemas/ContactResponse201"
                 }
               }
             }
@@ -208,8 +183,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "example": "65ca67e7ae7f10c88b598384"
+              "type": "string"
             }
           }
         ],
@@ -219,7 +193,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ContactResponse"
+                  "$ref": "#/components/schemas/ContactResponse200ById"
                 }
               }
             }
@@ -284,7 +258,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ContactResponse"
+                  "$ref": "#/components/schemas/ContactResponse200Patched"
                 }
               }
             }
@@ -324,7 +298,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ContactResponse"
+                  "$ref": "#/components/schemas/ContactResponse200Deleted"
                 }
               }
             }
@@ -341,14 +315,13 @@
           "Auth"
         ],
         "summary": "Реєстрація нового користувача",
-        "operationId": "signupUser",
-        "security": [],
+        "operationId": "signup",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/userSignup"
+                "$ref": "#/components/schemas/UserSignup"
               }
             }
           }
@@ -359,7 +332,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/userResponse"
+                  "$ref": "#/components/schemas/UserResponse201"
                 }
               }
             }
@@ -376,14 +349,13 @@
           "Auth"
         ],
         "summary": "Логін користувача",
-        "operationId": "loginUser",
-        "security": [],
+        "operationId": "login",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/userLogin"
+                "$ref": "#/components/schemas/UserLogin"
               }
             }
           }
@@ -394,7 +366,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/authResponse"
+                  "$ref": "#/components/schemas/AuthResponse200"
                 }
               }
             }
@@ -411,8 +383,12 @@
           "Auth"
         ],
         "summary": "Вихід користувача",
-        "operationId": "logoutUser",
-        "security": [],
+        "operationId": "logout",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "204": {
             "description": "Успішний вихід"
@@ -429,15 +405,19 @@
           "Auth"
         ],
         "summary": "Оновлення токена",
-        "operationId": "refreshUserSession",
-        "security": [],
+        "operationId": "refresh",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Токен оновлено",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/authResponse"
+                  "$ref": "#/components/schemas/AuthResponse200"
                 }
               }
             }
@@ -461,28 +441,22 @@
         "type": "object",
         "properties": {
           "_id": {
-            "type": "string",
-            "example": "65ca67e7ae7f10c88b598384"
+            "type": "string"
           },
           "name": {
-            "type": "string",
-            "example": "John Doe"
+            "type": "string"
           },
           "email": {
-            "type": "string",
-            "example": "john@example.com"
+            "type": "string"
           },
           "phoneNumber": {
-            "type": "string",
-            "example": "+380991234567"
+            "type": "string"
           },
           "photo": {
-            "type": "string",
-            "example": "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+            "type": "string"
           },
           "userId": {
-            "type": "string",
-            "example": "65ca67e7ae7f10c88b598300"
+            "type": "string"
           },
           "createdAt": {
             "type": "string",
@@ -494,90 +468,7 @@
           }
         }
       },
-      "ContactResponse": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "integer"
-          },
-          "message": {
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/Contact"
-          }
-        }
-      },
-      "userSignup": {
-        "type": "object",
-        "required": [
-          "name",
-          "email",
-          "password"
-        ],
-        "properties": {
-          "name": {
-            "type": "string",
-            "example": "John Doe"
-          },
-          "email": {
-            "type": "string",
-            "example": "john@example.com"
-          },
-          "password": {
-            "type": "string",
-            "example": "strongPassword123"
-          }
-        }
-      },
-      "userLogin": {
-        "type": "object",
-        "required": [
-          "email",
-          "password"
-        ],
-        "properties": {
-          "email": {
-            "type": "string",
-            "example": "john@example.com"
-          },
-          "password": {
-            "type": "string",
-            "example": "strongPassword123"
-          }
-        }
-      },
-      "userResponse": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "integer",
-            "example": 201
-          },
-          "message": {
-            "type": "string",
-            "example": "User created successfully!"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "_id": {
-                "type": "string",
-                "example": "65ca67e7ae7f10c88b598384"
-              },
-              "name": {
-                "type": "string",
-                "example": "John Doe"
-              },
-              "email": {
-                "type": "string",
-                "example": "john@example.com"
-              }
-            }
-          }
-        }
-      },
-      "authResponse": {
+      "ContactResponse200": {
         "type": "object",
         "properties": {
           "status": {
@@ -586,11 +477,151 @@
           },
           "message": {
             "type": "string",
-            "example": "Login successful"
+            "example": "Successfully found contacts!"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Contact"
+          }
+        }
+      },
+      "ContactResponse200ById": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "example": 200
+          },
+          "message": {
+            "type": "string",
+            "example": "Successfully found contact with id {contactId}!"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Contact"
+          }
+        }
+      },
+      "ContactResponse200Patched": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "example": 200
+          },
+          "message": {
+            "type": "string",
+            "example": "Successfully patched a contact!"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Contact"
+          }
+        }
+      },
+      "ContactResponse200Deleted": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "example": 200
+          },
+          "message": {
+            "type": "string",
+            "example": "Successfully deleted contact!"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Contact"
+          }
+        }
+      },
+      "ContactResponse201": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "example": 201
+          },
+          "message": {
+            "type": "string",
+            "example": "Successfully created a contact!"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Contact"
+          }
+        }
+      },
+      "UserSignup": {
+        "type": "object",
+        "required": [
+          "name",
+          "email",
+          "password"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "UserLogin": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "UserResponse201": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "example": 201
+          },
+          "message": {
+            "type": "string",
+            "example": "Successfully registered a user!"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "AuthResponse200": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "example": 200
+          },
+          "message": {
+            "type": "string",
+            "example": "Successfully logged in"
           },
           "token": {
-            "type": "string",
-            "example": "jwt.token.here"
+            "type": "string"
           }
         }
       }

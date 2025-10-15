@@ -15,10 +15,10 @@ tags:
   - name: Auth
 
 servers:
-  - url: https://nodejs-hw-mongodb-7-1it5.onrender.com
-    description: Render deployment
   - url: http://localhost:3000
     description: Local development server
+  - url: https://nodejs-hw-mongodb-7-1it5.onrender.com
+    description: Render deployment
 
 security:
   - bearerAuth: []
@@ -26,39 +26,28 @@ security:
 paths:
   /contacts:
     get:
-      tags:
-        - Contacts
+      tags: [Contacts]
       summary: Отримати список контактів
       operationId: getContacts
-      description: Повертає список контактів користувача з пагінацією та сортуванням
-      security:
-        - bearerAuth: []
+      security: [bearerAuth: []]
       parameters:
         - name: page
           in: query
-          description: Номер сторінки
-          required: false
           schema:
             type: integer
             default: 1
         - name: perPage
           in: query
-          description: Кількість контактів на сторінку
-          required: false
           schema:
             type: integer
             default: 10
         - name: sortBy
           in: query
-          description: Поле для сортування
-          required: false
           schema:
             type: string
             enum: [name, email, phoneNumber]
         - name: sortOrder
           in: query
-          description: Порядок сортування
-          required: false
           schema:
             type: string
             enum: [asc, desc]
@@ -68,57 +57,34 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: integer
-                    example: 200
-                  message:
-                    type: string
-                    example: Successfully found contacts!
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Contact'
+                $ref: '#/components/schemas/ContactResponse200'
         '401':
           $ref: '#/components/responses/401'
 
     post:
-      tags:
-        - Contacts
+      tags: [Contacts]
       summary: Створити новий контакт
       operationId: createContact
-      security:
-        - bearerAuth: []
+      security: [bearerAuth: []]
       requestBody:
         required: true
         content:
           multipart/form-data:
             schema:
               type: object
-              required:
-                - name
-                - phoneNumber
+              required: [name, phoneNumber]
               properties:
-                name:
-                  type: string
-                  example: John Doe
-                email:
-                  type: string
-                  example: john@example.com
-                phoneNumber:
-                  type: string
-                  example: "+380991234567"
-                photo:
-                  type: string
-                  format: binary
+                name: { type: string, example: John Doe }
+                email: { type: string, example: john@example.com }
+                phoneNumber: { type: string, example: "+380991234567" }
+                photo: { type: string, format: binary }
       responses:
         '201':
           description: Контакт створено
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ContactResponse'
+                $ref: '#/components/schemas/ContactResponse201'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -126,42 +92,35 @@ paths:
 
   /contacts/{contactId}:
     get:
-      tags:
-        - Contacts
+      tags: [Contacts]
       summary: Отримати контакт за ID
       operationId: getContactById
-      security:
-        - bearerAuth: []
+      security: [bearerAuth: []]
       parameters:
         - name: contactId
           in: path
           required: true
-          schema:
-            type: string
-            example: 65ca67e7ae7f10c88b598384
+          schema: { type: string }
       responses:
         '200':
           description: Успішне отримання контакту
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ContactResponse'
+                $ref: '#/components/schemas/ContactResponse200ById'
         '404':
           $ref: '#/components/responses/404'
 
     patch:
-      tags:
-        - Contacts
+      tags: [Contacts]
       summary: Оновити контакт
       operationId: updateContact
-      security:
-        - bearerAuth: []
+      security: [bearerAuth: []]
       parameters:
         - name: contactId
           in: path
           required: true
-          schema:
-            type: string
+          schema: { type: string }
       requestBody:
         required: true
         content:
@@ -169,106 +128,90 @@ paths:
             schema:
               type: object
               properties:
-                name:
-                  type: string
-                  example: Jane Doe
-                email:
-                  type: string
-                  example: jane@example.com
-                phoneNumber:
-                  type: string
-                  example: "+380671112233"
-                photo:
-                  type: string
-                  format: binary
+                name: { type: string, example: Jane Doe }
+                email: { type: string, example: jane@example.com }
+                phoneNumber: { type: string, example: "+380671112233" }
+                photo: { type: string, format: binary }
       responses:
         '200':
           description: Контакт оновлено
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ContactResponse'
+                $ref: '#/components/schemas/ContactResponse200Patched'
         '400':
           $ref: '#/components/responses/400'
         '404':
           $ref: '#/components/responses/404'
 
     delete:
-      tags:
-        - Contacts
+      tags: [Contacts]
       summary: Видалити контакт
       operationId: deleteContact
-      security:
-        - bearerAuth: []
+      security: [bearerAuth: []]
       parameters:
         - name: contactId
           in: path
           required: true
-          schema:
-            type: string
+          schema: { type: string }
       responses:
         '200':
           description: Контакт видалено
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ContactResponse'
+                $ref: '#/components/schemas/ContactResponse200Deleted'
         '404':
           $ref: '#/components/responses/404'
 
   /auth/signup:
     post:
-      tags:
-        - Auth
+      tags: [Auth]
       summary: Реєстрація нового користувача
-      operationId: signupUser
-      security: []
+      operationId: signup
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/userSignup'
+              $ref: '#/components/schemas/UserSignup'
       responses:
         '201':
           description: Користувач створений
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/userResponse'
+                $ref: '#/components/schemas/UserResponse201'
         '400':
           $ref: '#/components/responses/400'
 
   /auth/login:
     post:
-      tags:
-        - Auth
+      tags: [Auth]
       summary: Логін користувача
-      operationId: loginUser
-      security: []
+      operationId: login
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/userLogin'
+              $ref: '#/components/schemas/UserLogin'
       responses:
         '200':
           description: Успішний логін
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/authResponse'
+                $ref: '#/components/schemas/AuthResponse200'
         '401':
           $ref: '#/components/responses/401'
 
   /auth/logout:
     post:
-      tags:
-        - Auth
+      tags: [Auth]
       summary: Вихід користувача
-      operationId: logoutUser
-      security: []
+      operationId: logout
+      security: [bearerAuth: []]
       responses:
         '204':
           description: Успішний вихід
@@ -277,18 +220,17 @@ paths:
 
   /auth/refresh:
     post:
-      tags:
-        - Auth
+      tags: [Auth]
       summary: Оновлення токена
-      operationId: refreshUserSession
-      security: []
+      operationId: refresh
+      security: [bearerAuth: []]
       responses:
         '200':
           description: Токен оновлено
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/authResponse'
+                $ref: '#/components/schemas/AuthResponse200'
         '401':
           $ref: '#/components/responses/401'
 
@@ -302,105 +244,83 @@ components:
     Contact:
       type: object
       properties:
-        _id:
-          type: string
-          example: 65ca67e7ae7f10c88b598384
-        name:
-          type: string
-          example: John Doe
-        email:
-          type: string
-          example: john@example.com
-        phoneNumber:
-          type: string
-          example: "+380991234567"
-        photo:
-          type: string
-          example: "https://res.cloudinary.com/demo/image/upload/sample.jpg"
-        userId:
-          type: string
-          example: 65ca67e7ae7f10c88b598300
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
+        _id: { type: string }
+        name: { type: string }
+        email: { type: string }
+        phoneNumber: { type: string }
+        photo: { type: string }
+        userId: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
 
-    ContactResponse:
+    ContactResponse200:
       type: object
       properties:
-        status:
-          type: integer
-        message:
-          type: string
-        data:
-          $ref: '#/components/schemas/Contact'
+        status: { type: integer, example: 200 }
+        message: { type: string, example: "Successfully found contacts!" }
+        data: { $ref: '#/components/schemas/Contact' }
 
-    userSignup:
-      type: object
-      required:
-        - name
-        - email
-        - password
-      properties:
-        name:
-          type: string
-          example: John Doe
-        email:
-          type: string
-          example: john@example.com
-        password:
-          type: string
-          example: strongPassword123
-
-    userLogin:
-      type: object
-      required:
-        - email
-        - password
-      properties:
-        email:
-          type: string
-          example: john@example.com
-        password:
-          type: string
-          example: strongPassword123
-
-    userResponse:
+    ContactResponse200ById:
       type: object
       properties:
-        status:
-          type: integer
-          example: 201
-        message:
-          type: string
-          example: User created successfully!
+        status: { type: integer, example: 200 }
+        message: { type: string, example: "Successfully found contact with id {contactId}!" }
+        data: { $ref: '#/components/schemas/Contact' }
+
+    ContactResponse200Patched:
+      type: object
+      properties:
+        status: { type: integer, example: 200 }
+        message: { type: string, example: "Successfully patched a contact!" }
+        data: { $ref: '#/components/schemas/Contact' }
+
+    ContactResponse200Deleted:
+      type: object
+      properties:
+        status: { type: integer, example: 200 }
+        message: { type: string, example: "Successfully deleted contact!" }
+        data: { $ref: '#/components/schemas/Contact' }
+
+    ContactResponse201:
+      type: object
+      properties:
+        status: { type: integer, example: 201 }
+        message: { type: string, example: "Successfully created a contact!" }
+        data: { $ref: '#/components/schemas/Contact' }
+
+    UserSignup:
+      type: object
+      required: [name, email, password]
+      properties:
+        name: { type: string }
+        email: { type: string }
+        password: { type: string }
+
+    UserLogin:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string }
+        password: { type: string }
+
+    UserResponse201:
+      type: object
+      properties:
+        status: { type: integer, example: 201 }
+        message: { type: string, example: "Successfully registered a user!" }
         data:
           type: object
           properties:
-            _id:
-              type: string
-              example: 65ca67e7ae7f10c88b598384
-            name:
-              type: string
-              example: John Doe
-            email:
-              type: string
-              example: john@example.com
+            _id: { type: string }
+            name: { type: string }
+            email: { type: string }
 
-    authResponse:
+    AuthResponse200:
       type: object
       properties:
-        status:
-          type: integer
-          example: 200
-        message:
-          type: string
-          example: Login successful
-        token:
-          type: string
-          example: jwt.token.here
+        status: { type: integer, example: 200 }
+        message: { type: string, example: "Successfully logged in" }
+        token: { type: string }
 
   responses:
     400:
@@ -410,12 +330,9 @@ components:
           schema:
             type: object
             properties:
-              status:
-                type: integer
-                example: 400
-              message:
-                type: string
-                example: Invalid request data
+              status: { type: integer, example: 400 }
+              message: { type: string, example: "Invalid request data" }
+
     401:
       description: Unauthorized
       content:
@@ -423,12 +340,9 @@ components:
           schema:
             type: object
             properties:
-              status:
-                type: integer
-                example: 401
-              message:
-                type: string
-                example: Unauthorized
+              status: { type: integer, example: 401 }
+              message: { type: string, example: "Unauthorized" }
+
     404:
       description: Not Found
       content:
@@ -436,11 +350,10 @@ components:
           schema:
             type: object
             properties:
-              status:
-                type: integer
-                example: 404
-              message:
-                type: string
-                example: Resource not found
+              status: { type: integer, example: 404 }
+              message: { type: string, example: "Resource not found" }
+
+
+             
 
 
