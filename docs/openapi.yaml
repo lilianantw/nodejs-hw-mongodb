@@ -15,8 +15,10 @@ tags:
   - name: Auth
 
 servers:
-  - url: http://localhost:3000
   - url: https://nodejs-hw-mongodb-7-1it5.onrender.com
+    description: Render deployment
+  - url: http://localhost:3000
+    description: Local development server
 
 security:
   - bearerAuth: []
@@ -440,4 +442,5 @@ components:
               message:
                 type: string
                 example: Resource not found
+
 

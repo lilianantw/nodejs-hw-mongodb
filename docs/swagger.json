@@ -11,10 +11,12 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3000"
+      "url": "https://nodejs-hw-mongodb-7-1it5.onrender.com",
+      "description": "Render deployment"
     },
     {
-      "url": "https://nodejs-hw-mongodb-7-1it5.onrender.com"
+      "url": "http://localhost:3000",
+      "description": "Local development server"
     }
   ],
   "security": [
