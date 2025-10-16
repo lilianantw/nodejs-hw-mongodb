@@ -22,10 +22,20 @@ requestBody:
         properties:
           name:
             type: string
+            example: "Alice Johnson"
           email:
             type: string
-          phone:
+            example: "alice@example.com"
+          phoneNumber:
             type: string
+            example: "+380501112233"
+          isFavourite:
+            type: boolean
+            example: true
+          contactType:
+            type: string
+            enum: [work, home, personal]
+            example: "work"
           photo:
             type: string
             format: binary
@@ -48,9 +58,12 @@ responses:
               example: 400
             message:
               type: string
-              example: Request body cannot be empty
+              example: "Request body cannot be empty"
   '401':
     $ref: '../../../components/responses/401.yaml'
   '404':
     $ref: '../../../components/responses/404.yaml'
+
+
+
 

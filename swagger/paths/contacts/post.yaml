@@ -14,13 +14,27 @@ requestBody:
     multipart/form-data:
       schema:
         type: object
+        required:
+          - name
+          - phoneNumber
+          - contactType
         properties:
           name:
             type: string
+            example: "Alice Johnson"
           email:
             type: string
-          phone:
+            example: "alice@example.com"
+          phoneNumber:
             type: string
+            example: "+380501112233"
+          isFavourite:
+            type: boolean
+            example: false
+          contactType:
+            type: string
+            enum: [work, home, personal]
+            example: "personal"
           photo:
             type: string
             format: binary
@@ -30,33 +44,10 @@ responses:
     content:
       application/json:
         schema:
-          type: object
-          required:
-            - status
-            - message
-            - data
-          properties:
-            status:
-              type: integer
-              example: 201
-            message:
-              type: string
-              example: Contact created successfully!
-            data:
-              $ref: ../../components/schemas/contact.yaml
+          $ref: '../../../components/schemas/contact.yaml'
   '400':
-    description: Некоректні дані запиту
-    content:
-      application/json:
-        schema:
-          type: object
-          properties:
-            status:
-              type: integer
-              example: 400
-            message:
-              type: string
-              example: Invalid request data
+    $ref: '../../../components/responses/400.yaml'
   '401':
-    $ref: ../../components/responses/401.yaml
+    $ref: '../../../components/responses/401.yaml'
+
 
