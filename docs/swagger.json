@@ -121,7 +121,8 @@
                 "type": "object",
                 "required": [
                   "name",
-                  "phoneNumber"
+                  "phoneNumber",
+                  "contactType"
                 ],
                 "properties": {
                   "name": {
@@ -135,6 +136,19 @@
                   "phoneNumber": {
                     "type": "string",
                     "example": "+380991234567"
+                  },
+                  "isFavourite": {
+                    "type": "boolean",
+                    "example": false
+                  },
+                  "contactType": {
+                    "type": "string",
+                    "enum": [
+                      "work",
+                      "home",
+                      "personal"
+                    ],
+                    "example": "personal"
                   },
                   "photo": {
                     "type": "string",
@@ -242,6 +256,19 @@
                   "phoneNumber": {
                     "type": "string",
                     "example": "+380671112233"
+                  },
+                  "isFavourite": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "contactType": {
+                    "type": "string",
+                    "enum": [
+                      "work",
+                      "home",
+                      "personal"
+                    ],
+                    "example": "work"
                   },
                   "photo": {
                     "type": "string",
@@ -436,6 +463,68 @@
         "scheme": "bearer"
       }
     },
+    "responses": {
+      "400": {
+        "description": "Некоректний запит",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "integer",
+                  "example": 400
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Bad Request"
+                }
+              }
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Неавторизовано",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "integer",
+                  "example": 401
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Unauthorized"
+                }
+              }
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Не знайдено",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "integer",
+                  "example": 404
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Not Found"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "schemas": {
       "Contact": {
         "type": "object",
@@ -457,6 +546,19 @@
           },
           "userId": {
             "type": "string"
+          },
+          "isFavourite": {
+            "type": "boolean",
+            "example": false
+          },
+          "contactType": {
+            "type": "string",
+            "enum": [
+              "work",
+              "home",
+              "personal"
+            ],
+            "example": "personal"
           },
           "createdAt": {
             "type": "string",
@@ -480,7 +582,10 @@
             "example": "Successfully found contacts!"
           },
           "data": {
-            "$ref": "#/components/schemas/Contact"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Contact"
+            }
           }
         }
       },
@@ -591,7 +696,7 @@
           },
           "message": {
             "type": "string",
-            "example": "Successfully registered a user!"
+            "example": "Successfully created user!"
           },
           "data": {
             "type": "object",
@@ -618,69 +723,29 @@
           },
           "message": {
             "type": "string",
-            "example": "Successfully logged in"
+            "example": "Successfully logged in!"
           },
-          "token": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "responses": {
-      "400": {
-        "description": "Некоректні дані запиту",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": {
-                  "type": "integer",
-                  "example": 400
-                },
-                "message": {
-                  "type": "string",
-                  "example": "Invalid request data"
-                }
-              }
-            }
-          }
-        }
-      },
-      "401": {
-        "description": "Unauthorized",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": {
-                  "type": "integer",
-                  "example": 401
-                },
-                "message": {
-                  "type": "string",
-                  "example": "Unauthorized"
-                }
-              }
-            }
-          }
-        }
-      },
-      "404": {
-        "description": "Not Found",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": {
-                  "type": "integer",
-                  "example": 404
-                },
-                "message": {
-                  "type": "string",
-                  "example": "Resource not found"
+          "data": {
+            "type": "object",
+            "properties": {
+              "accessToken": {
+                "type": "string"
+              },
+              "refreshToken": {
+                "type": "string"
+              },
+              "user": {
+                "type": "object",
+                "properties": {
+                  "_id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  }
                 }
               }
             }

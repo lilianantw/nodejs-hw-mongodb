@@ -72,11 +72,16 @@ paths:
           multipart/form-data:
             schema:
               type: object
-              required: [name, phoneNumber]
+              required: [name, phoneNumber, contactType]
               properties:
                 name: { type: string, example: John Doe }
                 email: { type: string, example: john@example.com }
                 phoneNumber: { type: string, example: "+380991234567" }
+                isFavourite: { type: boolean, example: false }
+                contactType:
+                  type: string
+                  enum: [work, home, personal]
+                  example: personal
                 photo: { type: string, format: binary }
       responses:
         '201':
@@ -131,6 +136,11 @@ paths:
                 name: { type: string, example: Jane Doe }
                 email: { type: string, example: jane@example.com }
                 phoneNumber: { type: string, example: "+380671112233" }
+                isFavourite: { type: boolean, example: true }
+                contactType:
+                  type: string
+                  enum: [work, home, personal]
+                  example: work
                 photo: { type: string, format: binary }
       responses:
         '200':
@@ -240,6 +250,37 @@ components:
       type: http
       scheme: bearer
 
+  responses:
+    400:
+      description: Некоректний запит
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status: { type: integer, example: 400 }
+              message: { type: string, example: "Bad Request" }
+
+    401:
+      description: Неавторизовано
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status: { type: integer, example: 401 }
+              message: { type: string, example: "Unauthorized" }
+
+    404:
+      description: Не знайдено
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status: { type: integer, example: 404 }
+              message: { type: string, example: "Not Found" }
+
   schemas:
     Contact:
       type: object
@@ -265,7 +306,10 @@ components:
       properties:
         status: { type: integer, example: 200 }
         message: { type: string, example: "Successfully found contacts!" }
-        data: { $ref: '#/components/schemas/Contact' }
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contact'
 
     ContactResponse200ById:
       type: object
@@ -314,7 +358,32 @@ components:
       type: object
       properties:
         status: { type: integer, example: 201 }
-        message: { type: string, example: "Successfully
+        message: { type: string, example: "Successfully created user!" }
+        data:
+          type: object
+          properties:
+            _id: { type: string }
+            name: { type: string }
+            email: { type: string }
+
+    AuthResponse200:
+      type: object
+      properties:
+        status: { type: integer, example: 200 }
+        message: { type: string, example: "Successfully logged in!" }
+        data:
+          type: object
+          properties:
+            accessToken: { type: string }
+            refreshToken: { type: string }
+            user:
+              type: object
+              properties:
+                _id: { type: string }
+                name: { type: string }
+                email: { type: string }
+
+
 
 
              
